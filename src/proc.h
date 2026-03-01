@@ -13,6 +13,13 @@ typedef struct {
     unsigned long stime;
 } Process;
 
+typedef struct {
+    unsigned long total;
+    unsigned long idle;
+} CpuSample;
+
 int read_processes(Process *processes);
+CpuSample read_cpu_sample(void);
+void calculate_cpu(Process *a, Process *b, int count, CpuSample sa, CpuSample sb);
 
 #endif
