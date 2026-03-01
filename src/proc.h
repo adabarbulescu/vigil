@@ -20,6 +20,6 @@ typedef struct {
 
 int read_processes(Process *processes);
 CpuSample read_cpu_sample(void);
-void calculate_cpu(Process *a, Process *b, int count, CpuSample sa, CpuSample sb);
+void calculate_cpu(Process *a, int count_a, Process *b, int count_b, CpuSample sa, CpuSample sb);
 
 #endif

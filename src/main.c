@@ -15,10 +15,10 @@ int main(void) {
 
     // Second sample
     CpuSample cpu_b = read_cpu_sample();
-    read_processes(sample_b);
+    int count_b = read_processes(sample_b);
 
     // Calculate CPU percentages
-    calculate_cpu(sample_a, sample_b, count, cpu_a, cpu_b);
+    calculate_cpu(sample_a, count, sample_b, count_b, cpu_a, cpu_b);
 
     printf("%-10s %-25s %10s %10s\n", "PID", "NAME", "MEM(KB)", "CPU%");
     printf("%-10s %-25s %10s %10s\n", "----------", "-------------------------", "----------", "----------");

@@ -93,12 +93,18 @@ CpuSample read_cpu_sample(void) {
     return sample;
 }
 
-void calculate_cpu(Process *a, Process *b, int count, CpuSample sa, CpuSample sb) {
+void calculate_cpu(Process *a, int count_a, Process *b, int count_b, CpuSample sa, CpuSample sb) {
     unsigned long total_delta = sb.total - sa.total;
     if (total_delta == 0) return;
 
-    for (int i = 0; i < count; i++) {
-        unsigned long process_delta = (b[i].utime + b[i].stime) - (a[i].utime + a[i].stime);
-        b[i].cpu_percent = ((double)process_delta / (double)total_delta) * 100.0;
+    for (int i = 0; i < count_b; i++) {
+        b[i].cpu_percent = 0.0;
+        for (int j = 0; j < count_a; j++) {
+            if (a[j].pid == b[i].pid) {
+                unsigned long process_delta = (b[i].utime + b[i].stime) - (a[j].utime + a[j].stime);
+                b[i].cpu_percent = ((double)process_delta / (double)total_delta) * 100.0;
+                break;
+            }
+        }
     }
 }
