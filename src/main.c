@@ -1,38 +1,25 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "proc.h"
+#include "display.h"
 
 int main(void) {
     Process sample_a[MAX_PROCESSES];
     Process sample_b[MAX_PROCESSES];
 
-    // First sample
-    CpuSample cpu_a = read_cpu_sample();
-    int count = read_processes(sample_a);
+    while (1) {
+        CpuSample cpu_a = read_cpu_sample();
+        int count_a = read_processes(sample_a);
 
-    // Wait 1 second
-    sleep(1);
+        sleep(1);
 
-    // Second sample
-    CpuSample cpu_b = read_cpu_sample();
-    int count_b = read_processes(sample_b);
+        CpuSample cpu_b = read_cpu_sample();
+        int count_b = read_processes(sample_b);
 
-    // Calculate CPU percentages
-    calculate_cpu(sample_a, count, sample_b, count_b, cpu_a, cpu_b);
-
-    printf("%-10s %-25s %10s %10s\n", "PID", "NAME", "MEM(KB)", "CPU%");
-    printf("%-10s %-25s %10s %10s\n", "----------", "-------------------------", "----------", "----------");
-
-    for (int i = 0; i < count; i++) {
-        
-        printf("%-10d %-25s %10ld %9.1f%%\n",
-            sample_b[i].pid,
-            sample_b[i].name,
-            sample_b[i].memory_kb,
-            sample_b[i].cpu_percent);
-        
+        calculate_cpu(sample_a, count_a, sample_b, count_b, cpu_a, cpu_b);
+        sort_by_cpu(sample_b, count_b);
+        display_processes(sample_b, count_b);
     }
 
-    printf("\nTotal processes: %d\n", count);
     return 0;
 }
