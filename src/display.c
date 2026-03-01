@@ -12,9 +12,6 @@
 #define COLOR_LOW     "\033[0;32m"   
 #define COLOR_NORMAL  "\033[0m"      
 
-static void clear_screen(void) {
-    system("clear");
-}
 
 static const char *cpu_color(double cpu) {
     if (cpu > 10.0) return COLOR_HIGH;
@@ -35,10 +32,9 @@ void sort_by_cpu(Process *processes, int count) {
     qsort(processes, count, sizeof(Process), compare_cpu);
 }
 
-void display_processes(Process *processes, int count) {
-    clear_screen();
+void display_processes(Process *processes, int count, const char *filter) {
+    system("clear");
 
-    // Header
     printf("%s%-10s %-25s %10s %10s%s\n",
            COLOR_HEADER, "PID", "NAME", "MEM(KB)", "CPU%", COLOR_RESET);
     printf("%s%-10s %-25s %10s %10s%s\n",
@@ -46,8 +42,10 @@ void display_processes(Process *processes, int count) {
            "----------", "-------------------------", "----------", "----------",
            COLOR_RESET);
 
-    // Rows
+    int displayed = 0;
     for (int i = 0; i < count; i++) {
+        if (filter && strstr(processes[i].name, filter) == NULL) continue;
+
         const char *color = cpu_color(processes[i].cpu_percent);
         printf("%s%-10d %-25s %10ld %9.1f%%%s\n",
                color,
@@ -56,8 +54,15 @@ void display_processes(Process *processes, int count) {
                processes[i].memory_kb,
                processes[i].cpu_percent,
                COLOR_RESET);
+        displayed++;
     }
 
-    printf("\n%sTotal processes: %d%s\n", COLOR_HEADER, count, COLOR_RESET);
+    if (filter) {
+        printf("\n%sShowing: '%s' — %d/%d processes%s\n",
+               COLOR_HEADER, filter, displayed, count, COLOR_RESET);
+    } else {
+        printf("\n%sTotal processes: %d%s\n", COLOR_HEADER, count, COLOR_RESET);
+    }
+
     fflush(stdout);
 }

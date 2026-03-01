@@ -3,7 +3,7 @@
 
 #include "proc.h"
 
-void display_processes(Process *processes, int count);
+void display_processes(Process *processes, int count, const char *filter);
 void sort_by_cpu(Process *processes, int count);
 
 #endif
