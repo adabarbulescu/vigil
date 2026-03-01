@@ -4,14 +4,12 @@
 #include "display.h"
 #include <unistd.h>
 
-// ANSI color codes
 #define COLOR_RESET   "\033[0m"
-#define COLOR_HEADER  "\033[1;36m"   
-#define COLOR_HIGH    "\033[1;31m"   
-#define COLOR_MEDIUM  "\033[1;33m"   
-#define COLOR_LOW     "\033[0;32m"   
-#define COLOR_NORMAL  "\033[0m"      
-
+#define COLOR_HEADER  "\033[1;36m"
+#define COLOR_HIGH    "\033[1;31m"
+#define COLOR_MEDIUM  "\033[1;33m"
+#define COLOR_LOW     "\033[0;32m"
+#define COLOR_NORMAL  "\033[0m"
 
 static const char *cpu_color(double cpu) {
     if (cpu > 10.0) return COLOR_HIGH;
@@ -33,7 +31,8 @@ void sort_by_cpu(Process *processes, int count) {
 }
 
 void display_processes(Process *processes, int count, const char *filter) {
-    system("clear");
+    int rc = system("clear");
+    (void)rc;
 
     printf("%s%-10s %-25s %10s %10s%s\n",
            COLOR_HEADER, "PID", "NAME", "MEM(KB)", "CPU%", COLOR_RESET);

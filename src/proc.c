@@ -17,13 +17,30 @@ static void read_cpu_ticks(int pid, unsigned long *utime, unsigned long *stime) 
     FILE *f = fopen(path, "r");
     if (!f) { *utime = 0; *stime = 0; return; }
 
-    unsigned long ut, st;
-    fscanf(f, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu %lu",
-           &ut, &st);
+    char line[512];
+    if (!fgets(line, sizeof(line), f)) {
+        fclose(f);
+        *utime = 0; *stime = 0;
+        return;
+    }
     fclose(f);
 
-    *utime = ut;
-    *stime = st;
+    char *ptr = strrchr(line, ')');
+    if (!ptr) { *utime = 0; *stime = 0; return; }
+    ptr++;
+
+    unsigned long ut, st;
+    int matched = sscanf(ptr,
+        " %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu %lu",
+        &ut, &st);
+
+    if (matched == 2) {
+        *utime = ut;
+        *stime = st;
+    } else {
+        *utime = 0;
+        *stime = 0;
+    }
 }
 
 int read_processes(Process *processes) {
@@ -68,6 +85,7 @@ int read_processes(Process *processes) {
 
         processes[count].pid = pid;
         strncpy(processes[count].name, name, MAX_NAME_LEN - 1);
+        processes[count].name[MAX_NAME_LEN - 1] = '\0';
         processes[count].memory_kb = memory_kb;
         read_cpu_ticks(pid, &processes[count].utime, &processes[count].stime);
         processes[count].cpu_percent = 0.0;
@@ -84,9 +102,11 @@ CpuSample read_cpu_sample(void) {
     if (!f) return sample;
 
     unsigned long user, nice, system, idle, iowait, irq, softirq;
-    fscanf(f, "cpu %lu %lu %lu %lu %lu %lu %lu",
-           &user, &nice, &system, &idle, &iowait, &irq, &softirq);
+    int matched = fscanf(f, "cpu %lu %lu %lu %lu %lu %lu %lu",
+                         &user, &nice, &system, &idle, &iowait, &irq, &softirq);
     fclose(f);
+
+    if (matched != 7) return sample;
 
     sample.idle = idle + iowait;
     sample.total = user + nice + system + idle + iowait + irq + softirq;
